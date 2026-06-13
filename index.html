@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="LOTTO STATS — ניתוח סטטיסטי של הגרלות לוטו על בסיס תורת ההסתברות ותורת המשחקים.">
+  <meta name="description" content="LOTTO STATS — ניתוח סטטיסטי של הגרלות לוטו.">
   <meta property="og:title" content="LOTTO STATS · ניתוח הסתברותי">
-  <meta property="og:description" content="דשבורד דו-שכבתי: מה קרה בעבר ומה כדאי לבחור. עצמאי, עובד אופליין.">
+  <meta property="og:description" content="דשבורד דו-שכבתי מכויל לנתונים. עצמאי, עובד אופליין.">
   <meta name="theme-color" content="#0e1014">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="LOTTO STATS">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%234dd0c4%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%238b7ff0%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2222%22%20fill%3D%22%230e1014%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%225%22/%3E%3Ctext%20x%3D%2250%22%20y%3D%2265%22%20font-family%3D%22Arial%20Black%2CArial%22%20font-size%3D%2238%22%20font-weight%3D%22900%22%20fill%3D%22url%28%23g%29%22%20text-anchor%3D%22middle%22%3EL%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%234dd0c4%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%238b7ff0%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2222%22%20fill%3D%22%230e1014%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%225%22/%3E%3Ctext%20x%3D%2250%22%20y%3D%2265%22%20font-family%3D%22Arial%20Black%2CArial%22%20font-size%3D%2238%22%20font-weight%3D%22900%22%20fill%3D%22url%28%23g%29%22%20text-anchor%3D%22middle%22%3EL%3C/text%3E%3C/svg%3E">
   <title>LOTTO STATS · ניתוח הסתברותי</title>
 <style>
   /* fonts: system */
@@ -93,11 +95,31 @@
   .freq-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 6px; direction: ltr; }
   .freq-cell { background: var(--bg); border: 1px solid var(--line); border-radius: 3px; padding: 6px 4px 8px; text-align: center; position: relative; }
   .freq-n { font-family: 'SF Mono','Consolas','Courier New',monospace; font-size: 13px; font-weight: 600; color: var(--ink); }
-  .freq-track { height: 36px; display: flex; align-items: flex-end; justify-content: center; gap: 3px; margin-top: 5px; }
-  .freq-bar-obs { width: 8px; background: var(--observed); border-radius: 1px 1px 0 0; transition: height 0.6s cubic-bezier(.2,1,.3,1); }
-  .freq-bar-exp { width: 2px; background: var(--expected); border-radius: 1px; align-self: flex-end; }
+  .freq-track2 { height: 40px; position: relative; margin-top: 5px; }
+  .freq-midline { position: absolute; left: 0; right: 0; top: 50%; height: 0; border-top: 1px dashed var(--expected); opacity: 0.6; }
+  .freq-bar2 { position: absolute; left: 50%; transform: translateX(-50%); width: 13px; border-radius: 2px; transition: height 0.5s cubic-bezier(.2,1,.3,1); }
+  .freq-bar2.hot { background: var(--observed); border-radius: 2px 2px 0 0; }
+  .freq-bar2.cold { background: var(--violet); opacity: 0.65; border-radius: 0 0 2px 2px; }
   .freq-c { font-family: 'SF Mono','Consolas','Courier New',monospace; font-size: 10px; color: var(--ink-faint); margin-top: 4px; }
   .uniq-track { height: 4px; background: rgba(240,168,48,0.12); border-radius: 2px; margin-top: 12px; overflow: hidden; }
+  .dual-meters { display: flex; gap: 18px; margin-top: 14px; flex-wrap: wrap; }
+  .meter { flex: 1; min-width: 140px; }
+  .meter-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; color: var(--ink-dim); margin-bottom: 5px; }
+  .meter-val { font-family: 'SF Mono','Consolas','Courier New',monospace; font-weight: 600; font-size: 12px; }
+  .strat-val { color: var(--strategy); }
+  .real-val { color: var(--observed); }
+  .meter-track { height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .meter-fill { height: 100%; border-radius: 3px; transition: width 0.7s cubic-bezier(.16,1,.3,1); }
+  .meter-fill.uniq-fill { background: linear-gradient(90deg, rgba(240,168,48,0.5), var(--strategy)); }
+  .meter-fill.real-fill { background: linear-gradient(90deg, rgba(77,208,196,0.5), var(--observed)); }
+  .quartile-strip { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .qs-title { font-size: 12px; color: var(--ink-dim); margin-bottom: 10px; }
+  .qs-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .qs-item { flex: 1; min-width: 70px; text-align: center; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 8px 6px; font-size: 11px; color: var(--ink-faint); font-family: 'SF Mono','Consolas','Courier New',monospace; }
+  .qs-item b { display: block; font-size: 16px; color: var(--ink); margin-top: 3px; }
+  .qs-item.hot { border-color: rgba(77,208,196,0.4); }
+  .qs-item.hot b { color: var(--observed); }
+  .qs-note { font-size: 11px; color: var(--ink-faint); margin-top: 10px; }
   .uniq-fill { height: 100%; background: linear-gradient(90deg, rgba(240,168,48,0.5), var(--strategy)); border-radius: 2px; transition: width 0.7s cubic-bezier(.16,1,.3,1); }
 
   /* RANDOMNESS VERDICT */
@@ -130,7 +152,18 @@
   /* STRATEGY OUTPUT */
   .strat-intro { background: rgba(240,168,48,0.06); border: 1px solid rgba(240,168,48,0.2); border-radius: 4px; padding: 16px 18px; margin-bottom: 20px; font-size: 14px; color: var(--ink); }
   .strat-intro b { color: var(--strategy); }
+  .evidence-card { border-radius: 6px; padding: 16px 18px; margin-bottom: 18px; font-size: 14px; }
+  .evidence-card.confirmed { background: rgba(94,199,123,0.07); border: 1px solid rgba(94,199,123,0.3); }
+  .evidence-card.weak { background: rgba(240,168,48,0.06); border: 1px solid rgba(240,168,48,0.25); }
+  .ev-head { font-family: 'SF Mono','Consolas','Courier New',monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .evidence-card.confirmed .ev-head { color: var(--ok); }
+  .evidence-card.weak .ev-head { color: var(--strategy); }
+  .ev-body { color: var(--ink); line-height: 1.6; }
+  .evidence-card.confirmed .ev-body b { color: var(--ok); }
+  .evidence-card.weak .ev-body b { color: var(--strategy); }
   .line-card { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 16px 18px; margin-bottom: 12px; }
+  .line-card.warn-line { border-color: rgba(232,90,79,0.4); background: rgba(232,90,79,0.04); }
+  .warn-tag { color: var(--warn) !important; }
   .line-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
   .line-tag { font-family: 'SF Mono','Consolas','Courier New',monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--strategy); }
   .line-score { font-family: 'SF Mono','Consolas','Courier New',monospace; font-size: 11px; color: var(--ink-dim); }
@@ -500,7 +533,9 @@ function parseDraws(text) {
       if (/^\d+$/.test(clean)) ints.push(parseInt(clean, 10));
     });
     if (ints.length < 7) return;
-    let nums, strong;
+    let nums,
+      strong,
+      winners = null;
     // פורמט 1: בדיוק 7 מספרים → [6 מספרים, חזק]
     if (ints.length === 7) {
       nums = ints.slice(0, 6);
@@ -513,7 +548,6 @@ function parseDraws(text) {
     }
     // פורמט 3 (CSV מלא של הפיס): id ראשון, ואז לחפש 6 מספרים בטווח 1-37 + חזק 1-7
     else {
-      // נחפש חלון של 6 מספרים תקינים ואחריו מספר חזק
       let found = null;
       for (let i = 1; i + 6 < ints.length; i++) {
         const cand = ints.slice(i, i + 6);
@@ -521,7 +555,8 @@ function parseDraws(text) {
         if (cand.every(n => n >= 1 && n <= N_MAX) && new Set(cand).size === 6 && s >= 1 && s <= STRONG_MAX) {
           found = {
             nums: cand,
-            strong: s
+            strong: s,
+            winnersIdx: i + 7
           };
           break;
         }
@@ -529,6 +564,8 @@ function parseDraws(text) {
       if (!found) return;
       nums = found.nums;
       strong = found.strong;
+      // מספר הזוכים = הערך מיד אחרי המספר החזק (עמודת מספר_זוכים_לוטו)
+      if (found.winnersIdx < ints.length) winners = ints[found.winnersIdx];
     }
     if (nums.every(n => n >= 1 && n <= N_MAX) && new Set(nums).size === 6 && strong >= 1 && strong <= STRONG_MAX) {
       const key = nums.slice().sort((a, b) => a - b).join('-') + '|' + strong;
@@ -536,7 +573,8 @@ function parseDraws(text) {
         seen.add(key);
         draws.push({
           nums,
-          strong
+          strong,
+          winners
         });
       }
     }
@@ -549,7 +587,9 @@ function describe(draws) {
   const freq = Array(N_MAX + 1).fill(0);
   let sumTotal = 0,
     oddTotal = 0,
-    lowTotal = 0; // low = <=18
+    lowTotal = 0,
+    highTotal = 0; // low = <=18, high = >31
+  const lineSums = [];
   draws.forEach(d => {
     let s = 0;
     d.nums.forEach(n => {
@@ -557,13 +597,16 @@ function describe(draws) {
       s += n;
       if (n % 2) oddTotal++;
       if (n <= 18) lowTotal++;
+      if (n > 31) highTotal++;
     });
     sumTotal += s;
+    lineSums.push(s);
   });
   const totalSlots = draws.length * PICK;
   const cells = [];
   for (let n = 1; n <= N_MAX; n++) {
-    const obsPct = totalSlots ? freq[n] / totalSlots * 100 : 0;
+    // obsPct = באחוז כמה מההגרלות הכילו את המספר הזה. מתכנס ל-16.2% (=6/37) באקראיות.
+    const obsPct = draws.length ? freq[n] / draws.length * 100 : 0;
     cells.push({
       n,
       count: freq[n],
@@ -579,15 +622,82 @@ function describe(draws) {
   // ערך קריטי ל-df=36, רמת מובהקות 5% ≈ 50.998 (טבלת χ²)
   const CHI2_CRIT_05 = 50.998;
   const df = N_MAX - 1;
-  // אם chi2 < הסף → לא דוחים את השערת האקראיות (התדירויות אחידות)
   const consistentWithRandom = chi2 < CHI2_CRIT_05;
   const maxObs = Math.max(...cells.map(c => c.obsPct), EXPECTED_PER_NUM_PCT);
+  // הסטייה המקסימלית מהצפוי (16.2%) — בסיס למתיחת הגרף הדו-כיווני סביב הקו המרכזי.
+  // מינימום 1% כדי שאפילו התפלגות אחידה מאוד תציג עמודות קטנות נראות (ולא ריקות).
+  const maxDev = Math.max(...cells.map(c => Math.abs(c.obsPct - EXPECTED_PER_NUM_PCT)), 1);
+
+  // ---- מדדי התפלגות של סכום השורה (לכיול דינמי של שכבה 2) ----
+  // אינטרפולציה לינארית לפרסנטיל — שיטת R-7 (כמו Excel PERCENTILE)
+  function percentile(sortedArr, p) {
+    if (sortedArr.length === 0) return 0;
+    if (sortedArr.length === 1) return sortedArr[0];
+    const idx = (sortedArr.length - 1) * p;
+    const lo = Math.floor(idx),
+      hi = Math.ceil(idx);
+    if (lo === hi) return sortedArr[lo];
+    return sortedArr[lo] + (sortedArr[hi] - sortedArr[lo]) * (idx - lo);
+  }
+  const sortedSums = [...lineSums].sort((a, b) => a - b);
+  const avgSum = draws.length ? sumTotal / draws.length : 0;
+  const median = percentile(sortedSums, 0.5);
+  const q1 = percentile(sortedSums, 0.25);
+  const q3 = percentile(sortedSums, 0.75);
+  const p10 = percentile(sortedSums, 0.10);
+  const p90 = percentile(sortedSums, 0.90);
+  // סטיית תקן של הסכומים
+  const variance = lineSums.length ? lineSums.reduce((acc, s) => acc + Math.pow(s - avgSum, 2), 0) / lineSums.length : 0;
+  const sumStd = Math.sqrt(variance);
+
+  // ---- ניתוח אמפירי: הקשר בין סכום השורה הזוכה למספר הזוכים בפועל ----
+  // אם שורות "נמוכות" (תאריכים) מקבלות יותר זוכים → הוכחה אמפירית להטיית הקהל.
+  const withWinners = draws.filter(d => d.winners != null && d.winners > 0);
+  let winnerInsight = null;
+  if (withWinners.length >= 20) {
+    // חלק את ההגרלות הזוכות לשתי קבוצות: סכום נמוך (≤ חציון) וסכום גבוה (> חציון)
+    let loSum = 0,
+      loCount = 0,
+      hiSum = 0,
+      hiCount = 0;
+    withWinners.forEach(d => {
+      const s = d.nums.reduce((a, b) => a + b, 0);
+      if (s <= median) {
+        loSum += d.winners;
+        loCount++;
+      } else {
+        hiSum += d.winners;
+        hiCount++;
+      }
+    });
+    const loAvg = loCount ? loSum / loCount : 0;
+    const hiAvg = hiCount ? hiSum / hiCount : 0;
+    // יחס: כמה יותר זוכים בשורות נמוכות לעומת גבוהות
+    const ratio = hiAvg > 0 ? loAvg / hiAvg : loAvg > 0 ? 99 : 1;
+    winnerInsight = {
+      sampleSize: withWinners.length,
+      loAvg,
+      hiAvg,
+      ratio,
+      // אם היחס > 1.15, יש אות אמיתי שהקהל מעדיף שורות נמוכות
+      crowdBiasConfirmed: ratio > 1.15
+    };
+  }
   return {
     cells,
     maxObs,
-    avgSum: draws.length ? sumTotal / draws.length : 0,
+    maxDev,
+    avgSum,
+    winnerInsight,
+    median,
+    q1,
+    q3,
+    p10,
+    p90,
+    sumStd,
     oddPct: totalSlots ? oddTotal / totalSlots * 100 : 0,
     lowPct: totalSlots ? lowTotal / totalSlots * 100 : 0,
+    highPct: totalSlots ? highTotal / totalSlots * 100 : 0,
     chi2,
     df,
     chiCrit: CHI2_CRIT_05,
@@ -601,41 +711,69 @@ function describe(draws) {
 // לא ניבוי מי יזכה (בלתי אפשרי), אלא מזעור חלוקת פרס.
 // מנעד של 4 רמות, מ"ריאלי" (נראה כמו הגרלה אמיתית) ועד "אגרסיבי" (ייחודיות מקסימלית).
 
-// מנעד הרמות: מכסה את הטווח מ"ריאלי" (נראה כמו הגרלה אמיתית) ועד "אגרסיבי" (ייחודיות מקסימלית).
-// כל רמה מגדירה פרופיל מבני שונה, כך שהשורות באמת נבדלות זו מזו.
+// מנעד 5 רמות, מסודרות מהנכון-אסטרטגית לגרוע.
+// שלוש רמות מבוססות-סכום (מכוילות לחציון/רבעונים), ושתיים מבוססות-תדירות מהנתונים שלך:
+//   ניגודית = 6 המספרים הקרים ביותר (הקהל נמנע מהם → מקס ייחודיות)
+//   הימור-הקוף = 6 המספרים החמים ביותר (הקהל נוהר אליהם → מינ ייחודיות, חיקוי)
 const LEVELS = [{
-  key: "real",
-  tag: "ריאלית",
-  highCount: [1, 2],
-  sumMin: 90,
-  sumMax: 135,
-  target: 35,
-  desc: "נראית כמו הגרלה אמיתית: סכום מאוזן, פיזור על כל הטווח. ייחודיות נמוכה אך ההסתברות-לכאורה גבוהה."
-}, {
-  key: "balanced",
-  tag: "מאוזנת",
-  highCount: [2, 3],
-  sumMin: 110,
-  sumMax: 155,
-  target: 55,
-  desc: "פשרה: הטיה קלה למספרים גבוהים מבלי לאבד מראה טבעי. נקודת איזון בין ריאליזם לייחודיות."
+  key: "contrarian",
+  tag: "ניגודית",
+  mode: "freq",
+  pick: "cold",
+  target: 90,
+  desc: "ששת המספרים ה<b>קרים</b> ביותר בנתונים שלך — בדיוק אלה שהקהל נמנע מהם. ייחודיות מקסימלית. מהלך אסטרטגי נכון."
 }, {
   key: "unique",
   tag: "ייחודית",
+  mode: "sum",
   highCount: [4, 4],
-  sumMin: 120,
-  sumMax: 175,
+  band: "p90",
   target: 72,
-  desc: "ארבעה מספרים מעל 31, נמנעת מתאריכים. אם תזכה — חלוקה צפויה נמוכה משמעותית."
+  desc: "סביב העשירון ה-90 — מעל רוב ההגרלות, נמנעת מתאריכים. אם תזכה, חלוקה צפויה נמוכה."
 }, {
-  key: "aggressive",
-  tag: "אגרסיבית",
-  highCount: [5, 5],
-  sumMin: 140,
-  sumMax: 200,
-  target: 88,
-  desc: "חמישה מספרים מעל 31. ייחודיות מקסימלית — אך פחות ריאלית, כי הגרלות אמיתיות מפזרות רחב יותר."
+  key: "balanced",
+  tag: "מאוזנת",
+  mode: "sum",
+  highCount: [2, 3],
+  band: "q3",
+  target: 55,
+  desc: "סביב הרבעון העליון (Q3) — עדיין בתחום ההגרלות הריאליות, אך פחות פופולרית."
+}, {
+  key: "real",
+  tag: "ריאלית",
+  mode: "sum",
+  highCount: [1, 2],
+  band: "median",
+  target: 35,
+  desc: "ממוקדת סביב חציון הסכומים — נראית כמו הגרלה אמיתית טיפוסית. ריאליזם מקסימלי."
+}, {
+  key: "monkey",
+  tag: "הימור הקוף",
+  mode: "freq",
+  pick: "hot",
+  target: 8,
+  warn: true,
+  desc: "ששת המספרים ה<b>חמים</b> ביותר — הימור חיקוי על דפוס שחזר בעבר. <b>שים לב:</b> אלה בדיוק המספרים שהקהל בוחר, ולכן חלוקת הפרס הצפויה היא הגבוהה ביותר. הסיכוי לזכות זהה, אך אם תזכה — תחלוק עם הכי הרבה אנשים. בחירה מודעת-להפסד."
 }];
+function bandRange(level, desc) {
+  const {
+    median,
+    q3,
+    p90,
+    sumStd
+  } = desc;
+  const w = Math.max(sumStd * 0.5, 12);
+  switch (level.band) {
+    case "median":
+      return [median - w, median + w, median];
+    case "q3":
+      return [q3 - w * 0.6, q3 + w, q3];
+    case "p90":
+      return [p90 - w * 0.6, p90 + w, p90];
+    default:
+      return [median - w, median + w, median];
+  }
+}
 function pickN(min, max, count, excludeSet) {
   const pool = [];
   for (let i = min; i <= max; i++) if (!excludeSet.has(i)) pool.push(i);
@@ -646,26 +784,39 @@ function pickN(min, max, count, excludeSet) {
   return pool.slice(0, count);
 }
 
-// בונה שורה אחת התואמת פרופיל רמה: מנסה עד שמוצא שורה בטווח הסכום הרצוי
-function buildLineForLevel(level) {
+// בונה שורה מבוססת-תדירות: 6 המספרים הקרים/חמים ביותר מהנתונים
+function buildFreqLine(level, desc) {
+  // מיין את המספרים לפי תדירות הופעה
+  const sorted = [...desc.cells].sort((a, b) => level.pick === "cold" ? a.count - b.count : b.count - a.count);
+  const nums = sorted.slice(0, PICK).map(c => c.n).sort((a, b) => a - b);
+  // מספר חזק: לקרים נבחר את הקר ביותר, לחמים את החם ביותר (לפי strongFreq אם קיים, אחרת ברירת מחדל)
+  const strong = level.pick === "cold" ? 5 + Math.floor(Math.random() * 2) // קרים — נעדיף 5/6 (פחות פופולריים)
+  : 7; // חמים — 7 הוא ה"מזל" שאנשים בוחרים
+  const sum = nums.reduce((a, b) => a + b, 0);
+  return {
+    nums,
+    strong,
+    sum
+  };
+}
+
+// בונה שורה מבוססת-סכום (כמו קודם)
+function buildSumLine(level, desc) {
+  const [sumMin, sumMax, center] = bandRange(level, desc);
   let best = null,
     bestDelta = Infinity;
-  for (let attempt = 0; attempt < 300; attempt++) {
+  for (let attempt = 0; attempt < 400; attempt++) {
     const ex = new Set();
     const hc = level.highCount[0] + Math.floor(Math.random() * (level.highCount[1] - level.highCount[0] + 1));
     const high = pickN(32, 37, hc, ex);
     high.forEach(n => ex.add(n));
-    // היתר: לרמות הריאליות מותר טווח רחב (כולל תאריכים מעטים), לאגרסיביות רק גבוה-בינוני
-    const lowMin = level.key === "real" ? 2 : level.key === "balanced" ? 8 : 13;
+    const lowMin = level.key === "real" ? 2 : level.key === "balanced" ? 6 : 13;
     const rest = pickN(lowMin, 31, PICK - high.length, ex);
     const nums = [...high, ...rest].sort((a, b) => a - b);
     const sum = nums.reduce((a, b) => a + b, 0);
-    // העדפה: בתוך טווח הסכום + 3 זוגי/3 אי-זוגי לרמות ריאליות
-    const inRange = sum >= level.sumMin && sum <= level.sumMax;
+    const inRange = sum >= sumMin && sum <= sumMax;
     const odd = nums.filter(n => n % 2).length;
     const balancedOE = level.key === "real" || level.key === "balanced" ? Math.abs(odd - 3) : 0;
-    // מרחק מהמרכז הרצוי
-    const center = (level.sumMin + level.sumMax) / 2;
     const delta = (inRange ? 0 : 1000) + Math.abs(sum - center) + balancedOE * 5;
     if (delta < bestDelta) {
       bestDelta = delta;
@@ -677,7 +828,6 @@ function buildLineForLevel(level) {
     }
     if (inRange && balancedOE === 0) break;
   }
-  // מספר חזק: לרמות ייחודיות נעדיף 5/6 (פחות פופולריים), לריאלית מותר כל ערך
   const strong = level.key === "real" || level.key === "balanced" ? 1 + Math.floor(Math.random() * 7) : 5 + Math.floor(Math.random() * 2);
   return {
     nums: best.nums,
@@ -685,16 +835,39 @@ function buildLineForLevel(level) {
     sum: best.sum
   };
 }
-function generateOptimalLines() {
-  // שורה אחת לכל רמה — מנעד מלא, מהריאלי לאגרסיבי
+function buildLineForLevel(level, desc) {
+  return level.mode === "freq" ? buildFreqLine(level, desc) : buildSumLine(level, desc);
+}
+function realismScore(sum, desc) {
+  if (!desc.sumStd) return 50;
+  const z = Math.abs(sum - desc.median) / desc.sumStd;
+  return Math.max(0, Math.round(100 * Math.exp(-z * 0.4)));
+}
+function generateOptimalLines(desc) {
+  const d = desc || {
+    median: 113,
+    q1: 95,
+    q3: 131,
+    p10: 80,
+    p90: 148,
+    sumStd: 25,
+    cells: Array.from({
+      length: 37
+    }, (_, i) => ({
+      n: i + 1,
+      count: 1
+    }))
+  };
   return LEVELS.map((level, i) => {
-    const line = buildLineForLevel(level);
+    const line = buildLineForLevel(level, d);
     return {
       ...line,
       rank: i + 1,
       tag: level.tag,
       desc: level.desc,
+      warn: level.warn || false,
       uniqueness: level.target,
+      realism: realismScore(line.sum, d),
       highNums: line.nums.filter(n => n > 31).length
     };
   });
@@ -708,6 +881,66 @@ function App() {
   const [lines, setLines] = useState([]);
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [copied, setCopied] = useState(false);
+  function linesToText(lines) {
+    // פורמט מסודר להעתקה/הדפסה
+    const header = "LOTTO STATS — מנעד שורות מוצע\n" + "תאריך: " + new Date().toLocaleDateString('he-IL') + "\n\n";
+    const body = lines.map(L => `${L.tag}: ${L.nums.join(', ')}  |  חזק: ${L.strong}  (ייחודיות ${L.uniqueness}% · ריאליזם ${L.realism}%)`).join('\n');
+    const footer = "\n\nתזכורת: הסיכוי לזכות זהה בכל שורה (1 ל-16,273,488). המנעד משפיע רק על גודל הפרס אם תזכה, לא על הסיכוי.";
+    return header + body + footer;
+  }
+  function copyLines(lines) {
+    if (!lines.length) return;
+    const text = linesToText(lines);
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      // גיבוי אם clipboard חסום: בחירה ידנית
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (e) {}
+      document.body.removeChild(ta);
+    });
+  }
+  function printLines(lines) {
+    if (!lines.length) return;
+    const w = window.open('', '_blank');
+    if (!w) return;
+    const rows = lines.map(L => `
+      <tr>
+        <td style="font-weight:700;padding:10px;border-bottom:1px solid #ddd">${L.tag}</td>
+        <td style="font-family:monospace;font-size:18px;padding:10px;border-bottom:1px solid #ddd;letter-spacing:2px">${L.nums.join(' · ')}</td>
+        <td style="font-family:monospace;padding:10px;border-bottom:1px solid #ddd;color:#c0392b">חזק ${L.strong}</td>
+        <td style="padding:10px;border-bottom:1px solid #ddd;color:#888;font-size:12px">ייחודיות ${L.uniqueness}%</td>
+      </tr>`).join('');
+    w.document.write(`
+      <html dir="rtl"><head><meta charset="utf-8">  <meta name="description" content="LOTTO STATS — ניתוח סטטיסטי של הגרלות לוטו.">
+  <meta property="og:title" content="LOTTO STATS · ניתוח הסתברותי">
+  <meta property="og:description" content="דשבורד דו-שכבתי מכויל לנתונים. עצמאי, עובד אופליין.">
+  <meta name="theme-color" content="#0e1014">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="LOTTO STATS">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%234dd0c4%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%238b7ff0%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2222%22%20fill%3D%22%230e1014%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%225%22/%3E%3Ctext%20x%3D%2250%22%20y%3D%2265%22%20font-family%3D%22Arial%20Black%2CArial%22%20font-size%3D%2238%22%20font-weight%3D%22900%22%20fill%3D%22url%28%23g%29%22%20text-anchor%3D%22middle%22%3EL%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%234dd0c4%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%238b7ff0%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2222%22%20fill%3D%22%230e1014%22/%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%225%22/%3E%3Ctext%20x%3D%2250%22%20y%3D%2265%22%20font-family%3D%22Arial%20Black%2CArial%22%20font-size%3D%2238%22%20font-weight%3D%22900%22%20fill%3D%22url%28%23g%29%22%20text-anchor%3D%22middle%22%3EL%3C/text%3E%3C/svg%3E">
+  <title>LOTTO STATS — שורות</title></head>
+      <body style="font-family:Arial,sans-serif;max-width:680px;margin:40px auto;padding:0 20px;color:#222">
+        <h1 style="margin-bottom:4px">LOTTO STATS</h1>
+        <p style="color:#888;margin-top:0">מנעד שורות מוצע · ${new Date().toLocaleDateString('he-IL')}</p>
+        <table style="width:100%;border-collapse:collapse;margin-top:20px">${rows}</table>
+        <p style="margin-top:24px;font-size:12px;color:#aaa;border-top:1px solid #eee;padding-top:16px">
+          הסיכוי לזכות זהה בכל שורה (1 ל-16,273,488). המנעד משפיע רק על גודל הפרס אם תזכה, לא על הסיכוי לזכות. משחק באחריות.
+        </p>
+        <script>window.onload=function(){window.print()}<\/script>
+      </body></html>`);
+    w.document.close();
+  }
   const fileRef = useRef(null);
   const parsed = useMemo(() => parseDraws(raw), [raw]);
   function readFile(file) {
@@ -716,11 +949,11 @@ function App() {
       const text = e.target.result;
       setRaw(text);
       setFileName(file.name);
-      // ניתוח אוטומטי מיד אחרי טעינה
-      setDraws(parseDraws(text));
-      setLines(generateOptimalLines());
+      // ניתוח אוטומטי מיד אחרי טעינה — מחשב desc ומכייל סביבו את המנוע
+      const d = parseDraws(text);
+      setDraws(d);
+      setLines(generateOptimalLines(d.length ? describe(d) : null));
     };
-    // הפיס מקודד לרוב windows-1255; ננסה אותו, ואם נכשל UTF-8
     reader.readAsText(file, "windows-1255");
   }
   function handleDrop(e) {
@@ -730,8 +963,9 @@ function App() {
     if (file) readFile(file);
   }
   function run() {
-    setDraws(parseDraws(raw));
-    setLines(generateOptimalLines());
+    const d = parseDraws(raw);
+    setDraws(d);
+    setLines(generateOptimalLines(d.length ? describe(d) : null));
   }
   const desc = draws && draws.length ? describe(draws) : null;
   return /*#__PURE__*/React.createElement("div", {
@@ -847,44 +1081,40 @@ function App() {
     className: "card-h"
   }, "\u05EA\u05D3\u05D9\u05E8\u05D5\u05EA \u05DE\u05E1\u05E4\u05E8\u05D9\u05DD: \u05E0\u05E6\u05E4\u05D4 \u05DE\u05D5\u05DC \u05E6\u05E4\u05D5\u05D9"), /*#__PURE__*/React.createElement("div", {
     className: "card-sub"
-  }, "\u05D4\u05E2\u05DE\u05D5\u05D3\u05D4 \u05D4\u05E2\u05D1\u05D4 = \u05D4\u05EA\u05D3\u05D9\u05E8\u05D5\u05EA \u05E9\u05E0\u05E6\u05E4\u05EA\u05D4 \u05D1\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD. \u05D4\u05E7\u05D5 \u05D4\u05D3\u05E7 = \u05D4\u05EA\u05D3\u05D9\u05E8\u05D5\u05EA \u05D4\u05EA\u05D9\u05D0\u05D5\u05E8\u05D8\u05D9\u05EA \u05D4\u05D0\u05D7\u05D9\u05D3\u05D4 (~", EXPECTED_PER_NUM_PCT.toFixed(1), "%)."), /*#__PURE__*/React.createElement("div", {
-    className: "freq-legend"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "leg-item"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "leg-dot",
+  }, "\u05D4\u05E7\u05D5 \u05D4\u05DE\u05E7\u05D5\u05D5\u05E7\u05D5 \u05D1\u05DE\u05E8\u05DB\u05D6 = \u05D4\u05EA\u05D3\u05D9\u05E8\u05D5\u05EA \u05D4\u05E6\u05E4\u05D5\u05D9\u05D4 (~", EXPECTED_PER_NUM_PCT.toFixed(1), "%). \u05E2\u05DE\u05D5\u05D3\u05D4 ", /*#__PURE__*/React.createElement("span", {
     style: {
-      background: 'var(--observed)'
+      color: 'var(--observed)'
     }
-  }), " \u05E0\u05E6\u05E4\u05D4 \u05D1\u05E4\u05D5\u05E2\u05DC"), /*#__PURE__*/React.createElement("span", {
-    className: "leg-item"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "leg-dot",
+  }, "\u05D8\u05D5\u05E8\u05E7\u05D9\u05D6 \u05DB\u05DC\u05E4\u05D9 \u05DE\u05E2\u05DC\u05D4"), " = \u05DE\u05E1\u05E4\u05E8 \"\u05D7\u05DD\" (\u05DE\u05E2\u05DC \u05D4\u05E6\u05E4\u05D5\u05D9), \u05E2\u05DE\u05D5\u05D3\u05D4 ", /*#__PURE__*/React.createElement("span", {
     style: {
-      background: 'var(--expected)'
+      color: 'var(--violet)'
     }
-  }), " \u05E6\u05E4\u05D5\u05D9 \u05EA\u05D9\u05D0\u05D5\u05E8\u05D8\u05D9\u05EA")), /*#__PURE__*/React.createElement("div", {
+  }, "\u05E1\u05D2\u05D5\u05DC\u05D4 \u05DB\u05DC\u05E4\u05D9 \u05DE\u05D8\u05D4"), " = \"\u05E7\u05E8\". \u05DB\u05DB\u05DC \u05E9\u05D4\u05E2\u05DE\u05D5\u05D3\u05D5\u05EA \u05E7\u05D8\u05E0\u05D5\u05EA \u05D5\u05E6\u05DE\u05D5\u05D3\u05D5\u05EA \u05DC\u05E7\u05D5 \u2014 \u05DB\u05DA \u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D0\u05E7\u05E8\u05D0\u05D9\u05D9\u05DD \u05D9\u05D5\u05EA\u05E8."), /*#__PURE__*/React.createElement("div", {
     className: "freq-grid"
-  }, desc.cells.map(c => /*#__PURE__*/React.createElement("div", {
-    className: "freq-cell",
-    key: c.n
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "freq-n"
-  }, c.n), /*#__PURE__*/React.createElement("div", {
-    className: "freq-track"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "freq-bar-obs",
-    style: {
-      height: `${c.obsPct / desc.maxObs * 36}px`
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "freq-bar-exp",
-    style: {
-      height: `${EXPECTED_PER_NUM_PCT / desc.maxObs * 36}px`
-    }
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "freq-c"
-  }, c.count, "\xD7"))))), /*#__PURE__*/React.createElement("div", {
+  }, desc.cells.map(c => {
+    const dev = c.obsPct - EXPECTED_PER_NUM_PCT; // חיובי = חם, שלילי = קר
+    const half = 17; // חצי-גובה הגרף בפיקסלים (סך 34 + מרווח)
+    const barH = Math.abs(dev) / desc.maxDev * half;
+    const isHot = dev >= 0;
+    return /*#__PURE__*/React.createElement("div", {
+      className: "freq-cell",
+      key: c.n
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "freq-n"
+    }, c.n), /*#__PURE__*/React.createElement("div", {
+      className: "freq-track2"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "freq-midline"
+    }), /*#__PURE__*/React.createElement("div", {
+      className: `freq-bar2 ${isHot ? 'hot' : 'cold'}`,
+      style: {
+        height: `${barH}px`,
+        [isHot ? 'bottom' : 'top']: '50%'
+      }
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "freq-c"
+    }, c.count, "\xD7"));
+  }))), /*#__PURE__*/React.createElement("div", {
     className: "card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "card-h"
@@ -896,9 +1126,15 @@ function App() {
     className: "stat-box"
   }, /*#__PURE__*/React.createElement("div", {
     className: "stat-big"
-  }, desc.avgSum.toFixed(0)), /*#__PURE__*/React.createElement("div", {
+  }, desc.median.toFixed(0)), /*#__PURE__*/React.createElement("div", {
     className: "stat-lbl"
-  }, "\u05E1\u05DB\u05D5\u05DD \u05E9\u05D5\u05E8\u05D4 \u05DE\u05DE\u05D5\u05E6\u05E2")), /*#__PURE__*/React.createElement("div", {
+  }, "\u05D7\u05E6\u05D9\u05D5\u05DF \u05D4\u05E1\u05DB\u05D5\u05DD")), /*#__PURE__*/React.createElement("div", {
+    className: "stat-box"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "stat-big"
+  }, desc.highPct.toFixed(0), "%"), /*#__PURE__*/React.createElement("div", {
+    className: "stat-lbl"
+  }, "\u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05D2\u05D1\u05D5\u05D4\u05D9\u05DD (>31)")), /*#__PURE__*/React.createElement("div", {
     className: "stat-box"
   }, /*#__PURE__*/React.createElement("div", {
     className: "stat-big"
@@ -908,15 +1144,27 @@ function App() {
     className: "stat-box"
   }, /*#__PURE__*/React.createElement("div", {
     className: "stat-big"
-  }, desc.lowPct.toFixed(0), "%"), /*#__PURE__*/React.createElement("div", {
-    className: "stat-lbl"
-  }, "\u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05E0\u05DE\u05D5\u05DB\u05D9\u05DD (\u226418)")), /*#__PURE__*/React.createElement("div", {
-    className: "stat-box"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "stat-big"
   }, draws.length), /*#__PURE__*/React.createElement("div", {
     className: "stat-lbl"
-  }, "\u05D4\u05D2\u05E8\u05DC\u05D5\u05EA \u05D1\u05E0\u05D9\u05EA\u05D5\u05D7"))))), /*#__PURE__*/React.createElement("section", {
+  }, "\u05D4\u05D2\u05E8\u05DC\u05D5\u05EA \u05D1\u05E0\u05D9\u05EA\u05D5\u05D7"))), /*#__PURE__*/React.createElement("div", {
+    className: "quartile-strip"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "qs-title"
+  }, "\u05D4\u05EA\u05E4\u05DC\u05D2\u05D5\u05EA \u05E1\u05DB\u05D5\u05DD \u05D4\u05E9\u05D5\u05E8\u05D4 (\u05D4\u05D1\u05E1\u05D9\u05E1 \u05DC\u05DB\u05D9\u05D5\u05DC \u05E9\u05DB\u05D1\u05D4 2):"), /*#__PURE__*/React.createElement("div", {
+    className: "qs-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "qs-item"
+  }, "P10 ", /*#__PURE__*/React.createElement("b", null, desc.p10.toFixed(0))), /*#__PURE__*/React.createElement("span", {
+    className: "qs-item"
+  }, "Q1 ", /*#__PURE__*/React.createElement("b", null, desc.q1.toFixed(0))), /*#__PURE__*/React.createElement("span", {
+    className: "qs-item hot"
+  }, "\u05D7\u05E6\u05D9\u05D5\u05DF ", /*#__PURE__*/React.createElement("b", null, desc.median.toFixed(0))), /*#__PURE__*/React.createElement("span", {
+    className: "qs-item"
+  }, "Q3 ", /*#__PURE__*/React.createElement("b", null, desc.q3.toFixed(0))), /*#__PURE__*/React.createElement("span", {
+    className: "qs-item"
+  }, "P90 ", /*#__PURE__*/React.createElement("b", null, desc.p90.toFixed(0)))), /*#__PURE__*/React.createElement("div", {
+    className: "qs-note"
+  }, "\u05D4-50% \u05D4\u05D0\u05DE\u05E6\u05E2\u05D9\u05D9\u05DD \u05E9\u05DC \u05D4\u05D4\u05D2\u05E8\u05DC\u05D5\u05EA \u05E0\u05DE\u05E6\u05D0\u05D9\u05DD \u05D1\u05D9\u05DF Q1 \u05DC-Q3 \u2014 \u05D6\u05D4\u05D5 \"\u05D4\u05D0\u05D6\u05D5\u05E8 \u05D4\u05E8\u05D9\u05D0\u05DC\u05D9\".")))), /*#__PURE__*/React.createElement("section", {
     className: "section"
   }, /*#__PURE__*/React.createElement("div", {
     className: "sec-marker"
@@ -930,9 +1178,15 @@ function App() {
     className: "sec-desc"
   }, "\u05DB\u05D0\u05DF \u05D4\"\u05D7\u05D5\u05DB\u05DE\u05D4\" \u05D4\u05D0\u05DE\u05D9\u05EA\u05D9\u05EA \u2014 \u05D5\u05D4\u05D9\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05DC\u05D0"), " \u05E0\u05D9\u05D1\u05D5\u05D9 \u05E9\u05DC \u05DE\u05D9 \u05D9\u05D6\u05DB\u05D4. \u05D4\u05E1\u05D9\u05DB\u05D5\u05D9 \u05E9\u05DC\u05DA \u05DC\u05D6\u05DB\u05D5\u05EA \u05D6\u05D4\u05D4 \u05D1\u05DB\u05DC \u05E9\u05D5\u05E8\u05D4. \u05DE\u05D4 \u05E9\u05DE\u05E9\u05EA\u05E0\u05D4 \u05D4\u05D5\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05E2\u05DD \u05DB\u05DE\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD \u05EA\u05D7\u05DC\u05D5\u05E7"), " \u05D0\u05DD \u05EA\u05D6\u05DB\u05D4."), /*#__PURE__*/React.createElement("span", {
     className: "layer-tag strat"
-  }, "\u05E9\u05DB\u05D1\u05D4 \u05D0\u05E1\u05D8\u05E8\u05D8\u05D2\u05D9\u05EA \xB7 \u05DE\u05E0\u05E2\u05D3 4 \u05E8\u05DE\u05D5\u05EA"), /*#__PURE__*/React.createElement("div", {
+  }, "\u05E9\u05DB\u05D1\u05D4 \u05D0\u05E1\u05D8\u05E8\u05D8\u05D2\u05D9\u05EA \xB7 \u05DE\u05E0\u05E2\u05D3 5 \u05E8\u05DE\u05D5\u05EA"), /*#__PURE__*/React.createElement("div", {
     className: "strat-intro"
-  }, /*#__PURE__*/React.createElement("b", null, "\u05D4\u05E2\u05D9\u05E7\u05E8\u05D5\u05DF:"), " \u05D1\u05E0\u05D9 \u05D0\u05D3\u05DD \u05D1\u05D5\u05D7\u05E8\u05D9\u05DD \u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D0-\u05D0\u05E7\u05E8\u05D0\u05D9\u05EA \u2014 \u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD (1\u201331), \u05E8\u05E6\u05E4\u05D9\u05DD, \u05D3\u05E4\u05D5\u05E1\u05D9\u05DD. \u05D1\u05DE\u05E7\u05D5\u05DD \u05E9\u05D5\u05E8\u05D4 \u05D0\u05D7\u05EA, \u05D4\u05DE\u05E0\u05D5\u05E2 \u05E0\u05D5\u05EA\u05DF ", /*#__PURE__*/React.createElement("b", null, "\u05DE\u05E0\u05E2\u05D3 \u05E9\u05DC \u05D0\u05E8\u05D1\u05E2 \u05E8\u05DE\u05D5\u05EA"), " \u05E9\u05DE\u05DB\u05E1\u05D5\u05EA \u05D0\u05EA \u05DB\u05DC \u05D4\u05D8\u05D5\u05D5\u05D7 \u2014 \u05DE", /*#__PURE__*/React.createElement("b", null, "\"\u05E8\u05D9\u05D0\u05DC\u05D9\u05EA\""), " (\u05E0\u05E8\u05D0\u05D9\u05EA \u05DB\u05DE\u05D5 \u05D4\u05D2\u05E8\u05DC\u05D4 \u05D0\u05DE\u05D9\u05EA\u05D9\u05EA, \u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA \u05E0\u05DE\u05D5\u05DB\u05D4) \u05D5\u05E2\u05D3 ", /*#__PURE__*/React.createElement("b", null, "\"\u05D0\u05D2\u05E8\u05E1\u05D9\u05D1\u05D9\u05EA\""), " (\u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA \u05DE\u05E7\u05E1\u05D9\u05DE\u05DC\u05D9\u05EA, \u05E4\u05D7\u05D5\u05EA \u05E8\u05D9\u05D0\u05DC\u05D9\u05EA). \u05D1\u05D7\u05E8 \u05D0\u05EA \u05D4\u05E8\u05DE\u05D4 \u05E9\u05DE\u05EA\u05D0\u05D9\u05DE\u05D4 \u05DC\u05DA. \u05D1\u05DB\u05DC \u05D4\u05E8\u05DE\u05D5\u05EA \u05D4\u05E1\u05D9\u05DB\u05D5\u05D9 \u05DC\u05D6\u05DB\u05D5\u05EA \u05D6\u05D4\u05D4 (1 : 16,273,488); \u05DE\u05D4 \u05E9\u05DE\u05E9\u05EA\u05E0\u05D4 \u05D4\u05D5\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05E2\u05DD \u05DB\u05DE\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD \u05EA\u05D7\u05DC\u05D5\u05E7"), " \u05D0\u05DD \u05EA\u05D6\u05DB\u05D4."), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("b", null, "\u05D4\u05E2\u05D9\u05E7\u05E8\u05D5\u05DF:"), " \u05D1\u05E0\u05D9 \u05D0\u05D3\u05DD \u05D1\u05D5\u05D7\u05E8\u05D9\u05DD \u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D0-\u05D0\u05E7\u05E8\u05D0\u05D9\u05EA \u2014 \u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD, \u05E8\u05E6\u05E4\u05D9\u05DD, \u05D5\u05D1\u05E2\u05D9\u05E7\u05E8 ", /*#__PURE__*/React.createElement("b", null, "\u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05E9\u05D7\u05D6\u05E8\u05D5 \u05D1\u05E2\u05D1\u05E8"), ". \u05D4\u05DE\u05E0\u05E2\u05D3 \u05DE\u05E1\u05D5\u05D3\u05E8 \u05DE\u05D4\u05E0\u05DB\u05D5\u05DF-\u05D0\u05E1\u05D8\u05E8\u05D8\u05D2\u05D9\u05EA \u05DC\u05D2\u05E8\u05D5\u05E2: \u05DE", /*#__PURE__*/React.createElement("b", null, "\"\u05E0\u05D9\u05D2\u05D5\u05D3\u05D9\u05EA\""), " (\u05D4\u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05D4\u05E7\u05E8\u05D9\u05DD \u05D1\u05D9\u05D5\u05EA\u05E8 \u2014 \u05DE\u05E7\u05E1 \u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA) \u05D5\u05E2\u05D3 ", /*#__PURE__*/React.createElement("b", null, "\"\u05D4\u05D9\u05DE\u05D5\u05E8 \u05D4\u05E7\u05D5\u05E3\""), " (\u05D4\u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05D4\u05D7\u05DE\u05D9\u05DD \u05D1\u05D9\u05D5\u05EA\u05E8 \u2014 \u05D7\u05D9\u05E7\u05D5\u05D9 \u05D4\u05E7\u05D4\u05DC, \u05DE\u05D9\u05E0 \u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA). \u05D1\u05DB\u05DC \u05D4\u05E8\u05DE\u05D5\u05EA \u05D4\u05E1\u05D9\u05DB\u05D5\u05D9 \u05DC\u05D6\u05DB\u05D5\u05EA \u05D6\u05D4\u05D4 (1 : 16,273,488); \u05DE\u05D4 \u05E9\u05DE\u05E9\u05EA\u05E0\u05D4 \u05D4\u05D5\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05E2\u05DD \u05DB\u05DE\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD \u05EA\u05D7\u05DC\u05D5\u05E7"), " \u05D0\u05DD \u05EA\u05D6\u05DB\u05D4."), desc.winnerInsight && /*#__PURE__*/React.createElement("div", {
+    className: `evidence-card ${desc.winnerInsight.crowdBiasConfirmed ? 'confirmed' : 'weak'}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "ev-head"
+  }, desc.winnerInsight.crowdBiasConfirmed ? '✓ הטיית הקהל מאומתת בנתונים שלך' : '≈ אות חלש בנתונים'), /*#__PURE__*/React.createElement("div", {
+    className: "ev-body"
+  }, "\u05D1\u05D3\u05E7\u05EA\u05D9 ", desc.winnerInsight.sampleSize, " \u05D4\u05D2\u05E8\u05DC\u05D5\u05EA \u05E2\u05D1\u05E8 \u05E2\u05DD \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D6\u05D5\u05DB\u05D9\u05DD. \u05D1\u05D4\u05D2\u05E8\u05DC\u05D5\u05EA \u05E9\u05D1\u05D4\u05DF \u05D9\u05E6\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05E1\u05DB\u05D5\u05DD \u05E0\u05DE\u05D5\u05DA"), " (\u2264 \u05D7\u05E6\u05D9\u05D5\u05DF) \u05D4\u05D9\u05D5 \u05D1\u05DE\u05DE\u05D5\u05E6\u05E2 ", /*#__PURE__*/React.createElement("b", null, desc.winnerInsight.loAvg.toFixed(1)), " \u05D6\u05D5\u05DB\u05D9\u05DD, \u05DC\u05E2\u05D5\u05DE\u05EA ", /*#__PURE__*/React.createElement("b", null, desc.winnerInsight.hiAvg.toFixed(1)), " \u05D1\u05D4\u05D2\u05E8\u05DC\u05D5\u05EA \u05E2\u05DD \u05E1\u05DB\u05D5\u05DD \u05D2\u05D1\u05D5\u05D4.", desc.winnerInsight.crowdBiasConfirmed ? /*#__PURE__*/React.createElement("span", null, " \u05DB\u05DC\u05D5\u05DE\u05E8 \u05E9\u05D5\u05E8\u05D5\u05EA \u05E0\u05DE\u05D5\u05DB\u05D5\u05EA \u05D4\u05E0\u05D9\u05D1\u05D5 \u05E4\u05D9 ", /*#__PURE__*/React.createElement("b", null, desc.winnerInsight.ratio.toFixed(1)), " \u05D6\u05D5\u05DB\u05D9\u05DD \u2014 ", /*#__PURE__*/React.createElement("b", null, "\u05D4\u05D5\u05DB\u05D7\u05D4 \u05D0\u05DE\u05E4\u05D9\u05E8\u05D9\u05EA"), " \u05E9\u05D4\u05E7\u05D4\u05DC \u05D0\u05DB\u05DF \u05E0\u05D5\u05D4\u05E8 \u05DC\u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05E0\u05DE\u05D5\u05DB\u05D9\u05DD. \u05D6\u05D4 \u05DE\u05D0\u05E9\u05E8 \u05D0\u05EA \u05D4\u05D0\u05E1\u05D8\u05E8\u05D8\u05D2\u05D9\u05D4: \u05E8\u05DE\u05D5\u05EA \u05D2\u05D1\u05D5\u05D4\u05D5\u05EA \u05D9\u05D5\u05EA\u05E8 = \u05E4\u05D7\u05D5\u05EA \u05D7\u05DC\u05D5\u05E7\u05D4.") : /*#__PURE__*/React.createElement("span", null, " \u05D4\u05D4\u05D1\u05D3\u05DC \u05E7\u05D8\u05DF \u05DE\u05DB\u05D3\u05D9 \u05DC\u05D4\u05D5\u05D5\u05EA \u05D0\u05D5\u05EA \u05D7\u05D6\u05E7 \u2014 \u05D9\u05D9\u05EA\u05DB\u05DF \u05E9\u05D1\u05DE\u05D3\u05D2\u05DD \u05D4\u05D6\u05D4 \u05D4\u05D8\u05D9\u05D9\u05EA \u05D4\u05E7\u05D4\u05DC \u05E4\u05D7\u05D5\u05EA\u05D4, \u05D0\u05D5 \u05E9\u05D4\u05E9\u05D5\u05E0\u05D5\u05EA \u05D1\u05D2\u05D5\u05D3\u05DC \u05D4\u05E7\u05D5\u05E4\u05D4 \u05DE\u05E1\u05EA\u05D9\u05E8\u05D4 \u05D0\u05D5\u05EA\u05D4."))), /*#__PURE__*/React.createElement("div", {
     className: "btn-row",
     style: {
       marginBottom: 18
@@ -943,15 +1197,21 @@ function App() {
       borderColor: 'var(--strategy)',
       color: 'var(--strategy)'
     },
-    onClick: () => setLines(generateOptimalLines())
-  }, "\u21BB \u05D9\u05D9\u05E6\u05E8 \u05DE\u05E0\u05E2\u05D3 \u05E9\u05D5\u05E8\u05D5\u05EA \u05D7\u05D3\u05E9")), lines.map(L => /*#__PURE__*/React.createElement("div", {
-    className: "line-card",
+    onClick: () => setLines(generateOptimalLines(desc))
+  }, "\u21BB \u05D9\u05D9\u05E6\u05E8 \u05DE\u05E0\u05E2\u05D3 \u05E9\u05D5\u05E8\u05D5\u05EA \u05D7\u05D3\u05E9"), /*#__PURE__*/React.createElement("button", {
+    className: "btn",
+    onClick: () => copyLines(lines)
+  }, copied ? '✓ הועתק' : '⧉ העתק שורות'), /*#__PURE__*/React.createElement("button", {
+    className: "btn",
+    onClick: () => printLines(lines)
+  }, "\u2399 \u05D4\u05D3\u05E4\u05E1")), lines.map(L => /*#__PURE__*/React.createElement("div", {
+    className: `line-card ${L.warn ? 'warn-line' : ''}`,
     key: L.rank
   }, /*#__PURE__*/React.createElement("div", {
     className: "line-top"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "line-tag"
-  }, "\u25B8 ", L.tag, " \xB7 \u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA ", L.uniqueness, "%"), /*#__PURE__*/React.createElement("span", {
+    className: `line-tag ${L.warn ? 'warn-tag' : ''}`
+  }, L.warn ? '⚠ ' : '▸ ', L.tag), /*#__PURE__*/React.createElement("span", {
     className: "line-score"
   }, "\u05E1\u05D9\u05DB\u05D5\u05D9 \u05D6\u05DB\u05D9\u05D9\u05D4: \u05D6\u05D4\u05D4 \u05DC\u05DB\u05DC \u05E9\u05D5\u05E8\u05D4")), /*#__PURE__*/React.createElement("div", {
     className: "balls"
@@ -961,19 +1221,44 @@ function App() {
   }, n)), /*#__PURE__*/React.createElement("div", {
     className: "ball ball-s"
   }, L.strong)), /*#__PURE__*/React.createElement("div", {
-    className: "uniq-track"
+    className: "dual-meters"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "uniq-fill",
+    className: "meter"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "meter-head"
+  }, /*#__PURE__*/React.createElement("span", null, "\u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA"), /*#__PURE__*/React.createElement("span", {
+    className: "meter-val strat-val"
+  }, L.uniqueness, "%")), /*#__PURE__*/React.createElement("div", {
+    className: "meter-track"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "meter-fill uniq-fill",
     style: {
       width: `${L.uniqueness}%`
     }
-  })), /*#__PURE__*/React.createElement("div", {
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "meter"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "meter-head"
+  }, /*#__PURE__*/React.createElement("span", null, "\u05E8\u05D9\u05D0\u05DC\u05D9\u05D6\u05DD (\u05E7\u05E8\u05D1\u05D4 \u05DC\u05D7\u05E6\u05D9\u05D5\u05DF)"), /*#__PURE__*/React.createElement("span", {
+    className: "meter-val real-val"
+  }, L.realism, "%")), /*#__PURE__*/React.createElement("div", {
+    className: "meter-track"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "meter-fill real-fill",
+    style: {
+      width: `${L.realism}%`
+    }
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "line-why"
-  }, L.desc, " ", /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", {
+    dangerouslySetInnerHTML: {
+      __html: L.desc
+    }
+  }), " ", /*#__PURE__*/React.createElement("span", {
     style: {
       color: 'var(--ink-faint)'
     }
-  }, "\xB7 ", L.highNums, " \u05DE\u05E2\u05DC 31 \xB7 \u05E1\u05DB\u05D5\u05DD ", L.sum, " \xB7 \u05D7\u05D6\u05E7 ", L.strong))))), /*#__PURE__*/React.createElement("div", {
+  }, "\xB7 \u05E1\u05DB\u05D5\u05DD ", L.sum, " \xB7 \u05D7\u05D6\u05E7 ", L.strong))))), /*#__PURE__*/React.createElement("div", {
     className: "disc"
   }, /*#__PURE__*/React.createElement("div", {
     className: "disc-h"

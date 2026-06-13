@@ -3,17 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="LOTTO STATS — ניתוח סטטיסטי של הגרלות לוטו על בסיס תורת ההסתברות ותורת המשחקים. לא חיזוי, אלא הבנה.">
+  <meta name="description" content="LOTTO STATS — ניתוח סטטיסטי של הגרלות לוטו על בסיס תורת ההסתברות ותורת המשחקים.">
   <meta property="og:title" content="LOTTO STATS · ניתוח הסתברותי">
-  <meta property="og:description" content="דשבורד דו-שכבתי: מה קרה בעבר (תיאור) ומה כדאי לבחור (תורת משחקים). עצמאי, עובד אופליין.">
-  <meta property="og:type" content="website">
+  <meta property="og:description" content="דשבורד דו-שכבתי: מה קרה בעבר ומה כדאי לבחור. עצמאי, עובד אופליין.">
   <meta name="theme-color" content="#0e1014">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="LOTTO STATS">
   <title>LOTTO STATS · ניתוח הסתברותי</title>
 <style>
-  /* fonts: שימוש בפונטי מערכת — עצמאי, ללא אינטרנט */
+  /* fonts: system */
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --bg: #0e1014;
@@ -160,7 +158,6 @@
 <body>
 <div id="root"></div>
 <script>
-/* React 18 (UMD) — מוטמע */
 /**
  * @license React
  * react.production.min.js
@@ -195,7 +192,6 @@ c.useState=function(a){return g.current.useState(a)};c.useSyncExternalStore=func
 
 </script>
 <script>
-/* ReactDOM 18 (UMD) — מוטמע */
 /**
  * @license React
  * react-dom.production.min.js
@@ -466,7 +462,6 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
 
 </script>
 <script>
-/* קוד האפליקציה — מקומפל מראש (ללא Babel) */
 const {
   useState,
   useMemo
@@ -602,45 +597,45 @@ function describe(draws) {
   };
 }
 
-// ---------- שכבה 2: אופטימיזציה תורת-משחקית (דינמי) ----------
+// ---------- שכבה 2: אופטימיזציה תורת-משחקית (מנעד רמות) ----------
 // לא ניבוי מי יזכה (בלתי אפשרי), אלא מזעור חלוקת פרס.
-// מדד "פופולריות אנושית" — ככל שגבוה, כך יותר אנשים בוחרים שורה כזו → חלוקה גדולה יותר.
-// אנחנו מחפשים שורות עם ציון נמוך = פחות פופולריות = חלוקה צפויה נמוכה.
-function humanPopularityScore(nums) {
-  const s = [...nums].sort((a, b) => a - b);
-  let score = 0;
-  // 1. מספרים ≤31 = "תאריכים" — כל אחד מוסיף פופולריות
-  s.forEach(n => {
-    if (n <= 31) score += 10;
-    if (n <= 12) score += 6;
-  });
-  // 2. רצפים (n, n+1) — אנשים אוהבים/נמנעים, אבל רצף קצר נפוץ בבחירה
-  for (let i = 0; i < s.length - 1; i++) if (s[i + 1] - s[i] === 1) score += 8;
-  // 3. כל המספרים בחצי התחתון (טור אחד בטופס) — דפוס חזותי נפוץ
-  if (s[s.length - 1] <= 19) score += 25;
-  // 4. סכום באזור הצפוף (100-130 = ממוצע אנושי) → פופולרי
-  const sum = s.reduce((a, b) => a + b, 0);
-  if (sum >= 100 && sum <= 130) score += 15;
-  // 5. כפולות של 7 / מספרים "יפים" (7,11,13,21) — בחירה מודעת
-  const pretty = new Set([7, 11, 13, 21, 17]);
-  s.forEach(n => {
-    if (pretty.has(n)) score += 4;
-  });
-  return score;
-}
-function strongPopularity(strong) {
-  // אנשים נוטים ל-7 (מזל) ול-3; פחות ל-5,6
-  const map = {
-    1: 6,
-    2: 5,
-    3: 9,
-    4: 5,
-    5: 3,
-    6: 3,
-    7: 12
-  };
-  return map[strong] || 5;
-}
+// מנעד של 4 רמות, מ"ריאלי" (נראה כמו הגרלה אמיתית) ועד "אגרסיבי" (ייחודיות מקסימלית).
+
+// מנעד הרמות: מכסה את הטווח מ"ריאלי" (נראה כמו הגרלה אמיתית) ועד "אגרסיבי" (ייחודיות מקסימלית).
+// כל רמה מגדירה פרופיל מבני שונה, כך שהשורות באמת נבדלות זו מזו.
+const LEVELS = [{
+  key: "real",
+  tag: "ריאלית",
+  highCount: [1, 2],
+  sumMin: 90,
+  sumMax: 135,
+  target: 35,
+  desc: "נראית כמו הגרלה אמיתית: סכום מאוזן, פיזור על כל הטווח. ייחודיות נמוכה אך ההסתברות-לכאורה גבוהה."
+}, {
+  key: "balanced",
+  tag: "מאוזנת",
+  highCount: [2, 3],
+  sumMin: 110,
+  sumMax: 155,
+  target: 55,
+  desc: "פשרה: הטיה קלה למספרים גבוהים מבלי לאבד מראה טבעי. נקודת איזון בין ריאליזם לייחודיות."
+}, {
+  key: "unique",
+  tag: "ייחודית",
+  highCount: [4, 4],
+  sumMin: 120,
+  sumMax: 175,
+  target: 72,
+  desc: "ארבעה מספרים מעל 31, נמנעת מתאריכים. אם תזכה — חלוקה צפויה נמוכה משמעותית."
+}, {
+  key: "aggressive",
+  tag: "אגרסיבית",
+  highCount: [5, 5],
+  sumMin: 140,
+  sumMax: 200,
+  target: 88,
+  desc: "חמישה מספרים מעל 31. ייחודיות מקסימלית — אך פחות ריאלית, כי הגרלות אמיתיות מפזרות רחב יותר."
+}];
 function pickN(min, max, count, excludeSet) {
   const pool = [];
   for (let i = min; i <= max; i++) if (!excludeSet.has(i)) pool.push(i);
@@ -651,44 +646,58 @@ function pickN(min, max, count, excludeSet) {
   return pool.slice(0, count);
 }
 
-// מחולל: יוצר מועמדים, מדרג לפי ציון פופולריות נמוך, מחזיר את הטובים ביותר
-function generateOptimalLines(count) {
-  const candidates = [];
-  for (let k = 0; k < 400; k++) {
+// בונה שורה אחת התואמת פרופיל רמה: מנסה עד שמוצא שורה בטווח הסכום הרצוי
+function buildLineForLevel(level) {
+  let best = null,
+    bestDelta = Infinity;
+  for (let attempt = 0; attempt < 300; attempt++) {
     const ex = new Set();
-    // טיוב מבני: 3-4 מספרים מעל 31, היתר מפוזר
-    const high = pickN(32, 37, 3 + Math.floor(Math.random() * 2), ex);
+    const hc = level.highCount[0] + Math.floor(Math.random() * (level.highCount[1] - level.highCount[0] + 1));
+    const high = pickN(32, 37, hc, ex);
     high.forEach(n => ex.add(n));
-    const rest = pickN(13, 31, PICK - high.length, ex); // נמנעים מ-1..12 (תאריכי יום)
-    let nums = [...high, ...rest].sort((a, b) => a - b);
-    // פסילת רצפים ארוכים
-    const strong = 5 + Math.floor(Math.random() * 2); // 5 או 6 — הנפוצים-פחות
-    const score = humanPopularityScore(nums) + strongPopularity(strong);
-    candidates.push({
-      nums,
-      strong,
-      score
-    });
+    // היתר: לרמות הריאליות מותר טווח רחב (כולל תאריכים מעטים), לאגרסיביות רק גבוה-בינוני
+    const lowMin = level.key === "real" ? 2 : level.key === "balanced" ? 8 : 13;
+    const rest = pickN(lowMin, 31, PICK - high.length, ex);
+    const nums = [...high, ...rest].sort((a, b) => a - b);
+    const sum = nums.reduce((a, b) => a + b, 0);
+    // העדפה: בתוך טווח הסכום + 3 זוגי/3 אי-זוגי לרמות ריאליות
+    const inRange = sum >= level.sumMin && sum <= level.sumMax;
+    const odd = nums.filter(n => n % 2).length;
+    const balancedOE = level.key === "real" || level.key === "balanced" ? Math.abs(odd - 3) : 0;
+    // מרחק מהמרכז הרצוי
+    const center = (level.sumMin + level.sumMax) / 2;
+    const delta = (inRange ? 0 : 1000) + Math.abs(sum - center) + balancedOE * 5;
+    if (delta < bestDelta) {
+      bestDelta = delta;
+      best = {
+        nums,
+        sum,
+        odd
+      };
+    }
+    if (inRange && balancedOE === 0) break;
   }
-  candidates.sort((a, b) => a.score - b.score);
-  // dedup
-  const seen = new Set(),
-    out = [];
-  for (const c of candidates) {
-    const key = c.nums.join('-') + '|' + c.strong;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(c);
-    if (out.length >= count) break;
-  }
-  // סקלה אבסולוטית: ציון 0 = ייחודי מקסימלי (100%). ציון ~60 = פופולרי מאוד (0%).
-  // הסקלה קבועה כך שהמספר משמעותי ולא יחסי רק לאצווה הנוכחית.
-  const POP_CEILING = 60;
-  return out.map((c, i) => ({
-    ...c,
-    rank: i + 1,
-    uniqueness: Math.max(0, Math.round((1 - c.score / POP_CEILING) * 100))
-  }));
+  // מספר חזק: לרמות ייחודיות נעדיף 5/6 (פחות פופולריים), לריאלית מותר כל ערך
+  const strong = level.key === "real" || level.key === "balanced" ? 1 + Math.floor(Math.random() * 7) : 5 + Math.floor(Math.random() * 2);
+  return {
+    nums: best.nums,
+    strong,
+    sum: best.sum
+  };
+}
+function generateOptimalLines() {
+  // שורה אחת לכל רמה — מנעד מלא, מהריאלי לאגרסיבי
+  return LEVELS.map((level, i) => {
+    const line = buildLineForLevel(level);
+    return {
+      ...line,
+      rank: i + 1,
+      tag: level.tag,
+      desc: level.desc,
+      uniqueness: level.target,
+      highNums: line.nums.filter(n => n > 31).length
+    };
+  });
 }
 function App() {
   const {
@@ -709,7 +718,7 @@ function App() {
       setFileName(file.name);
       // ניתוח אוטומטי מיד אחרי טעינה
       setDraws(parseDraws(text));
-      setLines(generateOptimalLines(4));
+      setLines(generateOptimalLines());
     };
     // הפיס מקודד לרוב windows-1255; ננסה אותו, ואם נכשל UTF-8
     reader.readAsText(file, "windows-1255");
@@ -722,7 +731,7 @@ function App() {
   }
   function run() {
     setDraws(parseDraws(raw));
-    setLines(generateOptimalLines(4));
+    setLines(generateOptimalLines());
   }
   const desc = draws && draws.length ? describe(draws) : null;
   return /*#__PURE__*/React.createElement("div", {
@@ -921,9 +930,9 @@ function App() {
     className: "sec-desc"
   }, "\u05DB\u05D0\u05DF \u05D4\"\u05D7\u05D5\u05DB\u05DE\u05D4\" \u05D4\u05D0\u05DE\u05D9\u05EA\u05D9\u05EA \u2014 \u05D5\u05D4\u05D9\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05DC\u05D0"), " \u05E0\u05D9\u05D1\u05D5\u05D9 \u05E9\u05DC \u05DE\u05D9 \u05D9\u05D6\u05DB\u05D4. \u05D4\u05E1\u05D9\u05DB\u05D5\u05D9 \u05E9\u05DC\u05DA \u05DC\u05D6\u05DB\u05D5\u05EA \u05D6\u05D4\u05D4 \u05D1\u05DB\u05DC \u05E9\u05D5\u05E8\u05D4. \u05DE\u05D4 \u05E9\u05DE\u05E9\u05EA\u05E0\u05D4 \u05D4\u05D5\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05E2\u05DD \u05DB\u05DE\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD \u05EA\u05D7\u05DC\u05D5\u05E7"), " \u05D0\u05DD \u05EA\u05D6\u05DB\u05D4."), /*#__PURE__*/React.createElement("span", {
     className: "layer-tag strat"
-  }, "\u05E9\u05DB\u05D1\u05D4 \u05D0\u05E1\u05D8\u05E8\u05D8\u05D2\u05D9\u05EA \xB7 \u05DE\u05D7\u05D5\u05E9\u05D1 \u05DC\u05E4\u05D9 \u05DE\u05D5\u05D3\u05DC \u05D1\u05D7\u05D9\u05E8\u05D4 \u05D0\u05E0\u05D5\u05E9\u05D9\u05EA"), /*#__PURE__*/React.createElement("div", {
+  }, "\u05E9\u05DB\u05D1\u05D4 \u05D0\u05E1\u05D8\u05E8\u05D8\u05D2\u05D9\u05EA \xB7 \u05DE\u05E0\u05E2\u05D3 4 \u05E8\u05DE\u05D5\u05EA"), /*#__PURE__*/React.createElement("div", {
     className: "strat-intro"
-  }, /*#__PURE__*/React.createElement("b", null, "\u05D4\u05E2\u05D9\u05E7\u05E8\u05D5\u05DF:"), " \u05D1\u05E0\u05D9 \u05D0\u05D3\u05DD \u05D1\u05D5\u05D7\u05E8\u05D9\u05DD \u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D0-\u05D0\u05E7\u05E8\u05D0\u05D9\u05EA \u2014 \u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD (1\u201331), \u05E8\u05E6\u05E4\u05D9\u05DD, \u05D3\u05E4\u05D5\u05E1\u05D9\u05DD \u05E2\u05DC \u05D4\u05D8\u05D5\u05E4\u05E1. \u05D4\u05DE\u05E0\u05D5\u05E2 \u05DE\u05D9\u05D9\u05E6\u05E8 \u05DE\u05D0\u05D5\u05EA \u05E9\u05D5\u05E8\u05D5\u05EA \u05DE\u05D5\u05E2\u05DE\u05D3\u05D5\u05EA, \u05DE\u05D3\u05E8\u05D2 \u05DB\u05DC \u05D0\u05D7\u05EA \u05D1", /*#__PURE__*/React.createElement("b", null, "\u05DE\u05D3\u05D3 \u05E4\u05D5\u05E4\u05D5\u05DC\u05E8\u05D9\u05D5\u05EA \u05D0\u05E0\u05D5\u05E9\u05D9\u05EA"), ", \u05D5\u05D1\u05D5\u05D7\u05E8 \u05D0\u05EA \u05D4\u05E0\u05DE\u05D5\u05DB\u05D5\u05EA \u05D1\u05D9\u05D5\u05EA\u05E8. \u05E6\u05D9\u05D5\u05DF \u05E0\u05DE\u05D5\u05DA = \u05E4\u05D7\u05D5\u05EA \u05D0\u05E0\u05E9\u05D9\u05DD \u05D9\u05D1\u05D7\u05E8\u05D5 \u05E9\u05D5\u05E8\u05D4 \u05DB\u05D6\u05D5 = \u05D7\u05DC\u05D5\u05E7\u05EA \u05E4\u05E8\u05E1 \u05E7\u05D8\u05E0\u05D4 \u05D9\u05D5\u05EA\u05E8 \u05D0\u05DD \u05EA\u05D6\u05DB\u05D4. \u05D4\u05E1\u05D9\u05DB\u05D5\u05D9 \u05DC\u05D6\u05DB\u05D5\u05EA \u05D6\u05D4\u05D4 (1 : 16,273,488); \u05DE\u05D4 \u05E9\u05E2\u05D5\u05DC\u05D4 \u05D4\u05D5\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05EA\u05D5\u05D7\u05DC\u05EA \u05D4\u05D4\u05D7\u05D6\u05E8 \u05D4\u05DE\u05D5\u05EA\u05E0\u05D9\u05EA \u05D1\u05D6\u05DB\u05D9\u05D9\u05D4"), "."), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("b", null, "\u05D4\u05E2\u05D9\u05E7\u05E8\u05D5\u05DF:"), " \u05D1\u05E0\u05D9 \u05D0\u05D3\u05DD \u05D1\u05D5\u05D7\u05E8\u05D9\u05DD \u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D0-\u05D0\u05E7\u05E8\u05D0\u05D9\u05EA \u2014 \u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD (1\u201331), \u05E8\u05E6\u05E4\u05D9\u05DD, \u05D3\u05E4\u05D5\u05E1\u05D9\u05DD. \u05D1\u05DE\u05E7\u05D5\u05DD \u05E9\u05D5\u05E8\u05D4 \u05D0\u05D7\u05EA, \u05D4\u05DE\u05E0\u05D5\u05E2 \u05E0\u05D5\u05EA\u05DF ", /*#__PURE__*/React.createElement("b", null, "\u05DE\u05E0\u05E2\u05D3 \u05E9\u05DC \u05D0\u05E8\u05D1\u05E2 \u05E8\u05DE\u05D5\u05EA"), " \u05E9\u05DE\u05DB\u05E1\u05D5\u05EA \u05D0\u05EA \u05DB\u05DC \u05D4\u05D8\u05D5\u05D5\u05D7 \u2014 \u05DE", /*#__PURE__*/React.createElement("b", null, "\"\u05E8\u05D9\u05D0\u05DC\u05D9\u05EA\""), " (\u05E0\u05E8\u05D0\u05D9\u05EA \u05DB\u05DE\u05D5 \u05D4\u05D2\u05E8\u05DC\u05D4 \u05D0\u05DE\u05D9\u05EA\u05D9\u05EA, \u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA \u05E0\u05DE\u05D5\u05DB\u05D4) \u05D5\u05E2\u05D3 ", /*#__PURE__*/React.createElement("b", null, "\"\u05D0\u05D2\u05E8\u05E1\u05D9\u05D1\u05D9\u05EA\""), " (\u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA \u05DE\u05E7\u05E1\u05D9\u05DE\u05DC\u05D9\u05EA, \u05E4\u05D7\u05D5\u05EA \u05E8\u05D9\u05D0\u05DC\u05D9\u05EA). \u05D1\u05D7\u05E8 \u05D0\u05EA \u05D4\u05E8\u05DE\u05D4 \u05E9\u05DE\u05EA\u05D0\u05D9\u05DE\u05D4 \u05DC\u05DA. \u05D1\u05DB\u05DC \u05D4\u05E8\u05DE\u05D5\u05EA \u05D4\u05E1\u05D9\u05DB\u05D5\u05D9 \u05DC\u05D6\u05DB\u05D5\u05EA \u05D6\u05D4\u05D4 (1 : 16,273,488); \u05DE\u05D4 \u05E9\u05DE\u05E9\u05EA\u05E0\u05D4 \u05D4\u05D5\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05E2\u05DD \u05DB\u05DE\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD \u05EA\u05D7\u05DC\u05D5\u05E7"), " \u05D0\u05DD \u05EA\u05D6\u05DB\u05D4."), /*#__PURE__*/React.createElement("div", {
     className: "btn-row",
     style: {
       marginBottom: 18
@@ -934,15 +943,15 @@ function App() {
       borderColor: 'var(--strategy)',
       color: 'var(--strategy)'
     },
-    onClick: () => setLines(generateOptimalLines(4))
-  }, "\u21BB \u05D9\u05D9\u05E6\u05E8 \u05E9\u05D5\u05E8\u05D5\u05EA \u05D0\u05D5\u05E4\u05D8\u05D9\u05DE\u05DC\u05D9\u05D5\u05EA \u05D7\u05D3\u05E9\u05D5\u05EA")), lines.map(L => /*#__PURE__*/React.createElement("div", {
+    onClick: () => setLines(generateOptimalLines())
+  }, "\u21BB \u05D9\u05D9\u05E6\u05E8 \u05DE\u05E0\u05E2\u05D3 \u05E9\u05D5\u05E8\u05D5\u05EA \u05D7\u05D3\u05E9")), lines.map(L => /*#__PURE__*/React.createElement("div", {
     className: "line-card",
     key: L.rank
   }, /*#__PURE__*/React.createElement("div", {
     className: "line-top"
   }, /*#__PURE__*/React.createElement("span", {
     className: "line-tag"
-  }, "\u25B8 \u05E9\u05D5\u05E8\u05D4 #", L.rank, " \xB7 \u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA ", L.uniqueness, "%"), /*#__PURE__*/React.createElement("span", {
+  }, "\u25B8 ", L.tag, " \xB7 \u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA ", L.uniqueness, "%"), /*#__PURE__*/React.createElement("span", {
     className: "line-score"
   }, "\u05E1\u05D9\u05DB\u05D5\u05D9 \u05D6\u05DB\u05D9\u05D9\u05D4: \u05D6\u05D4\u05D4 \u05DC\u05DB\u05DC \u05E9\u05D5\u05E8\u05D4")), /*#__PURE__*/React.createElement("div", {
     className: "balls"
@@ -960,7 +969,11 @@ function App() {
     }
   })), /*#__PURE__*/React.createElement("div", {
     className: "line-why"
-  }, L.nums.filter(n => n > 31).length, " \u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05DE\u05E2\u05DC 31 \xB7 \u05E1\u05DB\u05D5\u05DD ", L.nums.reduce((a, b) => a + b, 0), " \xB7 \u05DE\u05E1\u05E4\u05E8 \u05D7\u05D6\u05E7 ", L.strong, ". \u05DB\u05DB\u05DC \u05E9\u05E4\u05E1 \u05D4\u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA \u05DE\u05DC\u05D0 \u05D9\u05D5\u05EA\u05E8 \u2014 \u05DB\u05DA \u05E4\u05D7\u05D5\u05EA \u05E1\u05D1\u05D9\u05E8 \u05E9\u05DE\u05D9\u05E9\u05D4\u05D5 \u05D0\u05D7\u05E8 \u05D1\u05D7\u05E8 \u05E9\u05D5\u05E8\u05D4 \u05D6\u05D4\u05D4.")))), /*#__PURE__*/React.createElement("div", {
+  }, L.desc, " ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: 'var(--ink-faint)'
+    }
+  }, "\xB7 ", L.highNums, " \u05DE\u05E2\u05DC 31 \xB7 \u05E1\u05DB\u05D5\u05DD ", L.sum, " \xB7 \u05D7\u05D6\u05E7 ", L.strong))))), /*#__PURE__*/React.createElement("div", {
     className: "disc"
   }, /*#__PURE__*/React.createElement("div", {
     className: "disc-h"

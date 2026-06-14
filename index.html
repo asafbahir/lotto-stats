@@ -152,6 +152,13 @@
   /* STRATEGY OUTPUT */
   .strat-intro { background: rgba(240,168,48,0.06); border: 1px solid rgba(240,168,48,0.2); border-radius: 4px; padding: 16px 18px; margin-bottom: 20px; font-size: 14px; color: var(--ink); }
   .strat-intro b { color: var(--strategy); }
+  .focus-bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+  .focus-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+  .focus-lbl { font-size: 12px; color: var(--ink-dim); font-family: 'SF Mono','Consolas','Courier New',monospace; }
+  .switch { width: 42px; height: 24px; border-radius: 12px; background: rgba(255,255,255,0.1); position: relative; transition: background 0.25s; flex-shrink: 0; }
+  .switch.on { background: var(--strategy); }
+  .switch .knob { position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform 0.25s; }
+  .switch.on .knob { transform: translateX(-18px); }
   .evidence-card { border-radius: 6px; padding: 16px 18px; margin-bottom: 18px; font-size: 14px; }
   .evidence-card.confirmed { background: rgba(94,199,123,0.07); border: 1px solid rgba(94,199,123,0.3); }
   .evidence-card.weak { background: rgba(240,168,48,0.06); border: 1px solid rgba(240,168,48,0.25); }
@@ -917,6 +924,8 @@ function App() {
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState("");
   const [copied, setCopied] = useState(false);
+  const [focusMode, setFocusMode] = useState(false); // דלוק = רק העיקר, כבוי = הכל
+
   function linesToText(lines) {
     // פורמט מסודר להעתקה/הדפסה
     const header = "LOTTO STATS — מנעד שורות מוצע\n" + "תאריך: " + new Date().toLocaleDateString('he-IL') + "\n\n";
@@ -948,15 +957,19 @@ function App() {
     if (!lines.length) return;
     const w = window.open('', '_blank');
     if (!w) return;
-    const rows = lines.map((L, i) => `
+    const ballStyle = "display:inline-block;font-family:'Courier New',monospace;font-size:18px;font-weight:700;color:#1a6e64;min-width:26px;text-align:center;margin:0 3px";
+    const strongStyle = "display:inline-block;font-family:'Courier New',monospace;font-size:16px;font-weight:700;color:#c0392b;min-width:26px;text-align:center;margin:0 3px 0 12px";
+    const rows = lines.map((L, i) => {
+      // כל מספר כיחידה עצמאית — מונע דליפת ספרות ב-bidi
+      const balls = L.nums.map(n => `<span style="${ballStyle}">${n}</span>`).join('');
+      const strong = `<span style="${strongStyle}">+${L.strong}</span>`;
+      return `
       <tr style="${L.warn ? 'background:#fff5f5;' : i % 2 ? 'background:#fafafa;' : ''}">
         <td style="font-weight:700;padding:12px 14px;border-bottom:1px solid #e5e5e5;white-space:nowrap;color:${L.warn ? '#c0392b' : '#222'}">${L.warn ? '⚠ ' : ''}${L.tag}</td>
-        <td style="padding:12px 14px;border-bottom:1px solid #e5e5e5">
-          <span dir="ltr" style="font-family:'Courier New',monospace;font-size:19px;font-weight:700;letter-spacing:3px;color:#1a6e64">${L.nums.join('  ')}</span>
-          <span dir="ltr" style="font-family:'Courier New',monospace;font-size:15px;color:#c0392b;margin-inline-start:10px">+${L.strong}</span>
-        </td>
+        <td dir="ltr" style="padding:12px 14px;border-bottom:1px solid #e5e5e5;text-align:left;direction:ltr;unicode-bidi:isolate">${balls}${strong}</td>
         <td style="padding:12px 14px;border-bottom:1px solid #e5e5e5;color:#888;font-size:12px;white-space:nowrap">ייחודיות ${L.uniqueness}%</td>
-      </tr>`).join('');
+      </tr>`;
+    }).join('');
     w.document.write(`
       <html dir="rtl"><head><meta charset="utf-8">  <meta name="description" content="LOTTO STATS — ניתוח סטטיסטי של הגרלות לוטו.">
   <meta property="og:title" content="LOTTO STATS · ניתוח הסתברותי">
@@ -1022,7 +1035,7 @@ function App() {
     className: "odds-val"
   }, draws.length.toLocaleString('he-IL')), /*#__PURE__*/React.createElement("div", {
     className: "odds-lbl"
-  }, "\u05D4\u05D2\u05E8\u05DC\u05D5\u05EA \u05E9\u05E0\u05D8\u05E2\u05E0\u05D5")), desc.dateRange ? /*#__PURE__*/React.createElement("div", {
+  }, "\u05D4\u05D2\u05E8\u05DC\u05D5\u05EA \u05E9\u05E0\u05D8\u05E2\u05E0\u05D5")), !focusMode && (desc.dateRange ? /*#__PURE__*/React.createElement("div", {
     className: "odds-item"
   }, /*#__PURE__*/React.createElement("div", {
     className: "odds-val",
@@ -1038,7 +1051,7 @@ function App() {
     className: "odds-val"
   }, desc.median.toFixed(0)), /*#__PURE__*/React.createElement("div", {
     className: "odds-lbl"
-  }, "\u05D7\u05E6\u05D9\u05D5\u05DF \u05D4\u05E1\u05DB\u05D5\u05DD")), /*#__PURE__*/React.createElement("div", {
+  }, "\u05D7\u05E6\u05D9\u05D5\u05DF \u05D4\u05E1\u05DB\u05D5\u05DD"))), !focusMode && /*#__PURE__*/React.createElement("div", {
     className: "odds-item"
   }, /*#__PURE__*/React.createElement("div", {
     className: "odds-val"
@@ -1121,9 +1134,24 @@ function App() {
       setDraws(null);
       setFileName("");
     }
-  }, "\u05E0\u05E7\u05D4"))), !draws && /*#__PURE__*/React.createElement("div", {
+  }, "\u05E0\u05E7\u05D4")), desc && /*#__PURE__*/React.createElement("div", {
+    className: "focus-bar",
+    style: {
+      marginTop: 16,
+      marginBottom: 0
+    }
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "focus-toggle"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: `switch ${focusMode ? 'on' : ''}`,
+    onClick: () => setFocusMode(f => !f)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "knob"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "focus-lbl"
+  }, focusMode ? 'מצב מיקוד · רק קלט + שורות' : 'מצב מלא · כל הפרטים')))), !draws && /*#__PURE__*/React.createElement("div", {
     className: "empty"
-  }, "\u05DC\u05D7\u05E5 \"\u05E0\u05EA\u05D7 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD\" \u05DB\u05D3\u05D9 \u05DC\u05D4\u05EA\u05D7\u05D9\u05DC"), desc && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("section", {
+  }, "\u05DC\u05D7\u05E5 \"\u05E0\u05EA\u05D7 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD\" \u05DB\u05D3\u05D9 \u05DC\u05D4\u05EA\u05D7\u05D9\u05DC"), desc && /*#__PURE__*/React.createElement(React.Fragment, null, !focusMode && /*#__PURE__*/React.createElement("section", {
     className: "section"
   }, /*#__PURE__*/React.createElement("div", {
     className: "sec-marker"
@@ -1208,7 +1236,7 @@ function App() {
     className: "stat-big"
   }, draws.length), /*#__PURE__*/React.createElement("div", {
     className: "stat-lbl"
-  }, "\u05D4\u05D2\u05E8\u05DC\u05D5\u05EA \u05D1\u05E0\u05D9\u05EA\u05D5\u05D7"))), /*#__PURE__*/React.createElement("div", {
+  }, "\u05D4\u05D2\u05E8\u05DC\u05D5\u05EA \u05D1\u05E0\u05D9\u05EA\u05D5\u05D7"))), !focusMode && /*#__PURE__*/React.createElement("div", {
     className: "quartile-strip"
   }, /*#__PURE__*/React.createElement("div", {
     className: "qs-title"
@@ -1236,13 +1264,13 @@ function App() {
     className: "sec-name"
   }, "Optimization \xB7 \u05EA\u05D5\u05E8\u05EA \u05DE\u05E9\u05D7\u05E7\u05D9\u05DD")), /*#__PURE__*/React.createElement("h2", {
     className: "sec-title"
-  }, "\u05DE\u05D4 \u05DB\u05D3\u05D0\u05D9 \u05DC\u05D1\u05D7\u05D5\u05E8"), /*#__PURE__*/React.createElement("p", {
+  }, "\u05DE\u05D4 \u05DB\u05D3\u05D0\u05D9 \u05DC\u05D1\u05D7\u05D5\u05E8"), !focusMode && /*#__PURE__*/React.createElement("p", {
     className: "sec-desc"
-  }, "\u05DB\u05D0\u05DF \u05D4\"\u05D7\u05D5\u05DB\u05DE\u05D4\" \u05D4\u05D0\u05DE\u05D9\u05EA\u05D9\u05EA \u2014 \u05D5\u05D4\u05D9\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05DC\u05D0"), " \u05E0\u05D9\u05D1\u05D5\u05D9 \u05E9\u05DC \u05DE\u05D9 \u05D9\u05D6\u05DB\u05D4. \u05D4\u05E1\u05D9\u05DB\u05D5\u05D9 \u05E9\u05DC\u05DA \u05DC\u05D6\u05DB\u05D5\u05EA \u05D6\u05D4\u05D4 \u05D1\u05DB\u05DC \u05E9\u05D5\u05E8\u05D4. \u05DE\u05D4 \u05E9\u05DE\u05E9\u05EA\u05E0\u05D4 \u05D4\u05D5\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05E2\u05DD \u05DB\u05DE\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD \u05EA\u05D7\u05DC\u05D5\u05E7"), " \u05D0\u05DD \u05EA\u05D6\u05DB\u05D4."), /*#__PURE__*/React.createElement("span", {
+  }, "\u05DB\u05D0\u05DF \u05D4\"\u05D7\u05D5\u05DB\u05DE\u05D4\" \u05D4\u05D0\u05DE\u05D9\u05EA\u05D9\u05EA \u2014 \u05D5\u05D4\u05D9\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05DC\u05D0"), " \u05E0\u05D9\u05D1\u05D5\u05D9 \u05E9\u05DC \u05DE\u05D9 \u05D9\u05D6\u05DB\u05D4. \u05D4\u05E1\u05D9\u05DB\u05D5\u05D9 \u05E9\u05DC\u05DA \u05DC\u05D6\u05DB\u05D5\u05EA \u05D6\u05D4\u05D4 \u05D1\u05DB\u05DC \u05E9\u05D5\u05E8\u05D4. \u05DE\u05D4 \u05E9\u05DE\u05E9\u05EA\u05E0\u05D4 \u05D4\u05D5\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05E2\u05DD \u05DB\u05DE\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD \u05EA\u05D7\u05DC\u05D5\u05E7"), " \u05D0\u05DD \u05EA\u05D6\u05DB\u05D4."), !focusMode && /*#__PURE__*/React.createElement("span", {
     className: "layer-tag strat"
-  }, "\u05E9\u05DB\u05D1\u05D4 \u05D0\u05E1\u05D8\u05E8\u05D8\u05D2\u05D9\u05EA \xB7 \u05DE\u05E0\u05E2\u05D3 5 \u05E8\u05DE\u05D5\u05EA"), /*#__PURE__*/React.createElement("div", {
+  }, "\u05E9\u05DB\u05D1\u05D4 \u05D0\u05E1\u05D8\u05E8\u05D8\u05D2\u05D9\u05EA \xB7 \u05DE\u05E0\u05E2\u05D3 5 \u05E8\u05DE\u05D5\u05EA"), !focusMode && /*#__PURE__*/React.createElement("div", {
     className: "strat-intro"
-  }, /*#__PURE__*/React.createElement("b", null, "\u05D4\u05E2\u05D9\u05E7\u05E8\u05D5\u05DF:"), " \u05D1\u05E0\u05D9 \u05D0\u05D3\u05DD \u05D1\u05D5\u05D7\u05E8\u05D9\u05DD \u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D0-\u05D0\u05E7\u05E8\u05D0\u05D9\u05EA \u2014 \u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD, \u05E8\u05E6\u05E4\u05D9\u05DD, \u05D5\u05D1\u05E2\u05D9\u05E7\u05E8 ", /*#__PURE__*/React.createElement("b", null, "\u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05E9\u05D7\u05D6\u05E8\u05D5 \u05D1\u05E2\u05D1\u05E8"), ". \u05D4\u05DE\u05E0\u05E2\u05D3 \u05DE\u05E1\u05D5\u05D3\u05E8 \u05DE\u05D4\u05E0\u05DB\u05D5\u05DF-\u05D0\u05E1\u05D8\u05E8\u05D8\u05D2\u05D9\u05EA \u05DC\u05D2\u05E8\u05D5\u05E2: \u05DE", /*#__PURE__*/React.createElement("b", null, "\"\u05E0\u05D9\u05D2\u05D5\u05D3\u05D9\u05EA\""), " (\u05D4\u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05D4\u05E7\u05E8\u05D9\u05DD \u05D1\u05D9\u05D5\u05EA\u05E8 \u2014 \u05DE\u05E7\u05E1 \u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA) \u05D5\u05E2\u05D3 ", /*#__PURE__*/React.createElement("b", null, "\"\u05D4\u05D9\u05DE\u05D5\u05E8 \u05D4\u05E7\u05D5\u05E3\""), " (\u05D4\u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05D4\u05D7\u05DE\u05D9\u05DD \u05D1\u05D9\u05D5\u05EA\u05E8 \u2014 \u05D7\u05D9\u05E7\u05D5\u05D9 \u05D4\u05E7\u05D4\u05DC, \u05DE\u05D9\u05E0 \u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA). \u05D1\u05DB\u05DC \u05D4\u05E8\u05DE\u05D5\u05EA \u05D4\u05E1\u05D9\u05DB\u05D5\u05D9 \u05DC\u05D6\u05DB\u05D5\u05EA \u05D6\u05D4\u05D4 (1 : 16,273,488); \u05DE\u05D4 \u05E9\u05DE\u05E9\u05EA\u05E0\u05D4 \u05D4\u05D5\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05E2\u05DD \u05DB\u05DE\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD \u05EA\u05D7\u05DC\u05D5\u05E7"), " \u05D0\u05DD \u05EA\u05D6\u05DB\u05D4."), desc.winnerInsight && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("b", null, "\u05D4\u05E2\u05D9\u05E7\u05E8\u05D5\u05DF:"), " \u05D1\u05E0\u05D9 \u05D0\u05D3\u05DD \u05D1\u05D5\u05D7\u05E8\u05D9\u05DD \u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D0-\u05D0\u05E7\u05E8\u05D0\u05D9\u05EA \u2014 \u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD, \u05E8\u05E6\u05E4\u05D9\u05DD, \u05D5\u05D1\u05E2\u05D9\u05E7\u05E8 ", /*#__PURE__*/React.createElement("b", null, "\u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05E9\u05D7\u05D6\u05E8\u05D5 \u05D1\u05E2\u05D1\u05E8"), ". \u05D4\u05DE\u05E0\u05E2\u05D3 \u05DE\u05E1\u05D5\u05D3\u05E8 \u05DE\u05D4\u05E0\u05DB\u05D5\u05DF-\u05D0\u05E1\u05D8\u05E8\u05D8\u05D2\u05D9\u05EA \u05DC\u05D2\u05E8\u05D5\u05E2: \u05DE", /*#__PURE__*/React.createElement("b", null, "\"\u05E0\u05D9\u05D2\u05D5\u05D3\u05D9\u05EA\""), " (\u05D4\u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05D4\u05E7\u05E8\u05D9\u05DD \u05D1\u05D9\u05D5\u05EA\u05E8 \u2014 \u05DE\u05E7\u05E1 \u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA) \u05D5\u05E2\u05D3 ", /*#__PURE__*/React.createElement("b", null, "\"\u05D4\u05D9\u05DE\u05D5\u05E8 \u05D4\u05E7\u05D5\u05E3\""), " (\u05D4\u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05D4\u05D7\u05DE\u05D9\u05DD \u05D1\u05D9\u05D5\u05EA\u05E8 \u2014 \u05D7\u05D9\u05E7\u05D5\u05D9 \u05D4\u05E7\u05D4\u05DC, \u05DE\u05D9\u05E0 \u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA). \u05D1\u05DB\u05DC \u05D4\u05E8\u05DE\u05D5\u05EA \u05D4\u05E1\u05D9\u05DB\u05D5\u05D9 \u05DC\u05D6\u05DB\u05D5\u05EA \u05D6\u05D4\u05D4 (1 : 16,273,488); \u05DE\u05D4 \u05E9\u05DE\u05E9\u05EA\u05E0\u05D4 \u05D4\u05D5\u05D0 ", /*#__PURE__*/React.createElement("b", null, "\u05E2\u05DD \u05DB\u05DE\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD \u05EA\u05D7\u05DC\u05D5\u05E7"), " \u05D0\u05DD \u05EA\u05D6\u05DB\u05D4."), !focusMode && desc.winnerInsight && /*#__PURE__*/React.createElement("div", {
     className: `evidence-card ${desc.winnerInsight.crowdBiasConfirmed ? 'confirmed' : 'weak'}`
   }, /*#__PURE__*/React.createElement("div", {
     className: "ev-head"
@@ -1297,7 +1325,7 @@ function App() {
     style: {
       width: `${L.uniqueness}%`
     }
-  }))), /*#__PURE__*/React.createElement("div", {
+  }))), !focusMode && /*#__PURE__*/React.createElement("div", {
     className: "meter"
   }, /*#__PURE__*/React.createElement("div", {
     className: "meter-head"
@@ -1310,7 +1338,7 @@ function App() {
     style: {
       width: `${L.realism}%`
     }
-  })))), /*#__PURE__*/React.createElement("div", {
+  })))), !focusMode && /*#__PURE__*/React.createElement("div", {
     className: "line-why"
   }, /*#__PURE__*/React.createElement("span", {
     dangerouslySetInnerHTML: {
